@@ -1,7 +1,9 @@
 package uz.yusufbekibragimov.valyutauz
 
 import android.app.Application
+import com.appodeal.ads.Appodeal
 import dagger.hilt.android.HiltAndroidApp
+import io.bidmachine.AdsType
 
 /**
  * Created by Ibragimov Yusufbek
@@ -11,5 +13,7 @@ import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
 class App : Application() {
-
+    override fun onCreate() {
+        super.onCreate()
+    }
 }

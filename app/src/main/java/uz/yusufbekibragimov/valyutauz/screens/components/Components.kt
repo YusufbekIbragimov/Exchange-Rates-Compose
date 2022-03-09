@@ -32,7 +32,7 @@ import uz.yusufbekibragimov.valyutauz.ui.theme.color3
 
 @Composable
 fun DrawerLayoutAtHome() {
-    Box(
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(end = 50.dp)

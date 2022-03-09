@@ -17,13 +17,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
@@ -39,8 +40,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.launch
 import uz.yusufbekibragimov.valyutauz.R
+import uz.yusufbekibragimov.valyutauz.data.model.ExchangeDates
 import uz.yusufbekibragimov.valyutauz.data.model.RateItemData
-import uz.yusufbekibragimov.valyutauz.screens.components.DrawerLayoutAtHome
 import uz.yusufbekibragimov.valyutauz.screens.components.SheetContent
 import uz.yusufbekibragimov.valyutauz.screens.home_screen.HomeViewModel
 import uz.yusufbekibragimov.valyutauz.ui.theme.*
@@ -63,30 +64,33 @@ fun HomeScreen(
     val coroutineScope = rememberCoroutineScope()
     val openSearch = remember { mutableStateOf(false) }
     val dName = remember { mutableStateOf(TextFieldValue("")) }
-    val rateItemCurrent = remember { mutableStateOf<RateItemData>(value = RateItemData()) }
     val openSheet = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
 
+    val rateItemCurrent = remember { mutableStateOf<RateItemData>(value = RateItemData()) }
+
+    val focusRequester = remember { FocusRequester() }
+
     BackHandler(onBack = {
-            when (openSheet.currentValue) {
-                ModalBottomSheetValue.Hidden -> {
-                    viewModel.showDialog()
-                }
-                ModalBottomSheetValue.Expanded -> {
-                    coroutineScope.launch {
-                        openSheet.animateTo(
-                            ModalBottomSheetValue.HalfExpanded
-                        )
-                    }
-                }
-                ModalBottomSheetValue.HalfExpanded -> {
-                    coroutineScope.launch {
-                        openSheet.animateTo(
-                            ModalBottomSheetValue.Hidden
-                        )
-                    }
+        when (openSheet.currentValue) {
+            ModalBottomSheetValue.Hidden -> {
+                viewModel.showDialog()
+            }
+            ModalBottomSheetValue.Expanded -> {
+                coroutineScope.launch {
+                    openSheet.animateTo(
+                        ModalBottomSheetValue.HalfExpanded
+                    )
                 }
             }
-        })
+            ModalBottomSheetValue.HalfExpanded -> {
+                coroutineScope.launch {
+                    openSheet.animateTo(
+                        ModalBottomSheetValue.Hidden
+                    )
+                }
+            }
+        }
+    })
 
     val loginState by viewModel.listDataLiveData.observeAsState(emptyList())
     val scaffoldState = rememberScaffoldState()
@@ -114,11 +118,11 @@ fun HomeScreen(
         sheetElevation = 0.dp,
     ) {
         Scaffold(
-            drawerContent = {
+            /*drawerContent = {
                 DrawerLayoutAtHome()
             },
             scaffoldState = scaffoldState,
-            drawerBackgroundColor = Color.Transparent,
+            drawerBackgroundColor = Color.Transparent,*/
             backgroundColor = if (isSystemInDarkTheme()) Black80 else White80,
             drawerElevation = 0.dp
         ) {
@@ -155,6 +159,7 @@ fun HomeScreen(
                                             modifier = Modifier
                                                 .fillMaxWidth()
                                                 .padding(end = 12.dp)
+                                                .focusRequester(focusRequester = focusRequester)
                                                 .clip(RoundedCornerShape(30.dp))
                                                 .background(if (isSystemInDarkTheme()) BackSearchNight else BackSearch)
                                                 .padding(start = 8.dp),
@@ -201,7 +206,7 @@ fun HomeScreen(
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.Center
                                 ) {
-                                    IconButton(
+                                    /*IconButton(
                                         onClick = {
                                             coroutineScope.launch {
                                                 scaffoldState.drawerState.open()
@@ -221,7 +226,7 @@ fun HomeScreen(
                                                     }
                                                 }
                                         )
-                                    }
+                                    }*/
                                     Text(
                                         "Exchange Rate",
                                         fontFamily = FontFamily(Font(R.font.my_bold)),
@@ -237,12 +242,17 @@ fun HomeScreen(
                             openSearch.value = !openSearch.value
                             dName.value = TextFieldValue("")
                             viewModel.getListSearch("")
+                            if (openSearch.value) {
+                                coroutineScope.launch {
+//                                    focusRequester.requestFocus()
+                                }
+                            }
                         }) {
                             AnimatedContent(targetState = openSearch.value) { isOpen ->
                                 if (isOpen) {
                                     Icon(
                                         imageVector = Icons.Default.Close,
-                                        contentDescription = "Share",
+                                        contentDescription = "Close",
                                         tint = Color.White
                                     )
                                 } else {
@@ -270,13 +280,12 @@ fun HomeScreen(
                     Column(
                         modifier = Modifier.padding(bottom = 70.dp)
                     ) {
-                        ListScreen(loginState, navController, openSheet, rateItemCurrent)
+                        ListScreen(loginState, navController, openSheet, rateItemCurrent, viewModel = viewModel)
                     }
                 }
             }
         }
     }
-
 }
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -285,11 +294,12 @@ fun ListScreen(
     names: List<RateItemData>,
     navController: NavHostController,
     openSheet: ModalBottomSheetState,
-    rateItemCurrent: MutableState<RateItemData>
+    rateItemCurrent: MutableState<RateItemData>,
+    viewModel: HomeViewModel
 ) {
     LazyColumn(modifier = Modifier.padding()) {
         items(names) { names ->
-            ItemExchange(name = names, navController, openSheet, rateItemCurrent)
+            ItemExchange(name = names, navController, openSheet, rateItemCurrent,viewModel)
         }
     }
 }

@@ -16,6 +16,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import uz.yusufbekibragimov.valyutauz.data.model.Currencies
+import uz.yusufbekibragimov.valyutauz.data.model.ExchangeDates
+import uz.yusufbekibragimov.valyutauz.data.model.ExchangeUiData
 import uz.yusufbekibragimov.valyutauz.data.model.RateItemData
 import uz.yusufbekibragimov.valyutauz.data.repository.abstraction.Repository
 import javax.inject.Inject
@@ -36,8 +39,8 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val repository: Repository
 ) : ViewModel() {
-    private val _openDialog:MutableState<Boolean> = mutableStateOf(false)
-    val openDialog:State<Boolean> = _openDialog
+    private val _openDialog: MutableState<Boolean> = mutableStateOf(false)
+    val openDialog: State<Boolean> = _openDialog
 
     private var lastSearchText = ""
     private val _listDataLiveData = MutableLiveData<List<RateItemData>>()
@@ -58,11 +61,11 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun showDialog(){
+    fun showDialog() {
         _openDialog.value = true
     }
 
-    fun hideDialog(){
+    fun hideDialog() {
         _openDialog.value = false
     }
 
@@ -82,6 +85,24 @@ class HomeViewModel @Inject constructor(
             } else {
                 _listDataLiveData.postValue(listData)
             }
+        }
+    }
+
+
+    private val _graphListLiveData = MutableLiveData<ExchangeUiData>()
+    val graphListLiveData: LiveData<ExchangeUiData> get() = _graphListLiveData
+
+    fun getGraphList(startHistoryData: String, endHistoryData: String, currency: String,codeUnique:Int) {
+        viewModelScope.launch {
+            Log.d("III", "getGraphList: JHGHGHDJ")
+            repository.getGraphList(startHistoryData, endHistoryData, currency)
+                .catch {
+                    Log.d("III", "getGraphList: CATCH ${it.message}")
+                }
+                .collect {
+                    _graphListLiveData.postValue(ExchangeUiData(it,codeUnique))
+                    Log.d("III", "getGraphList: COLLECT = $it")
+                }
         }
     }
 

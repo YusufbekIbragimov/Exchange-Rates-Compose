@@ -51,14 +51,10 @@ import java.text.DecimalFormat
 fun SheetContent(item: RateItemData, openSheet: ModalBottomSheetState) {
 
     val isChange = remember { mutableStateOf(false) }
-    var inputValueState by remember { mutableStateOf(value = TextFieldValue()) }
-    val inputValue = inputValueState.copy(text = inputValueState.text)
-    val focusRequester = remember { FocusRequester() }
+    var inputValueState by remember { mutableStateOf(TextFieldValue()) }
 
+    val decimalFormat = DecimalFormat("###,###,###,###,###,###,###,###,###,###")
     val coroutineScope = rememberCoroutineScope()
-
-    val decimalFormat =
-        DecimalFormat("###,###,###,###,###,###,###,###,###,###,###,###,###,###,###,###,###,###,###")
 
     Column(
         modifier = Modifier
@@ -98,16 +94,7 @@ fun SheetContent(item: RateItemData, openSheet: ModalBottomSheetState) {
                     .fillMaxWidth()
                     .wrapContentHeight()
                     .padding(vertical = 8.dp, horizontal = 16.dp),
-                value = if (inputValueState.text == "") {
-                    ""
-                } else {
-                    decimalFormat.format(
-                        inputValue.text.replace(("[^\\d.]").toRegex(), "").toDouble()
-                    )
-                },
-                keyboardActions = KeyboardActions {
-                    focusRequester.requestFocus()
-                },
+                value = inputValueState,
                 label = {
                     Text(
                         text = "Input amount",
@@ -117,22 +104,10 @@ fun SheetContent(item: RateItemData, openSheet: ModalBottomSheetState) {
                     )
                 },
                 onValueChange = { newtext ->
-                    val text =
-                        decimalFormat.format(newtext.replace(("[^\\d.]").toRegex(), "").toDouble())
-                    Log.d("RRR", "SheetContent: newtext = $text")
-                    inputValueState = TextFieldValue(text)
-
-                    /* if (newtext.isEmpty()) {
-                         inputValue.value = newtext
-                     } else {
-                         inputValue.value = when (newtext.toDoubleOrNull()) {
-                             null -> inputValue.value //old value
-                             else -> newtext //new value
-                         }
-                     }*/
+                    inputValueState = newtext
                 },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                visualTransformation = MoneyVisualTransformation()
+                visualTransformation = DecimalVisualTransformation()
             )
         }
 
@@ -185,15 +160,15 @@ fun SheetContent(item: RateItemData, openSheet: ModalBottomSheetState) {
                 value = TextFieldValue(
                     "${
                         decimalFormat.format(
-                            if (inputValue.text == "" || inputValue == null) {
+                            if (inputValueState.text == "" || inputValueState == null) {
                                 "0".toDouble()
                             } else {
                                 if (isChange.value) {
-                                    inputValue.text.replace(("[^\\d.]").toRegex(), "")
+                                    inputValueState.text.replace(("[^\\d.]").toRegex(), "")
                                         .toDouble() / (item.rate?.toDouble()!!)
                                 } else {
                                     if (item.rate != null) {
-                                        inputValue.text.replace(("[^\\d.]").toRegex(), "")
+                                        inputValueState.text.replace(("[^\\d.]").toRegex(), "")
                                             .toDouble() * (item.rate.toDouble())
                                     } else {
                                         0.0
@@ -233,22 +208,37 @@ fun SheetContent(item: RateItemData, openSheet: ModalBottomSheetState) {
 
 }
 
-class MoneyVisualTransformation() : VisualTransformation {
-    companion object {
-        /**
-         * The offset map used for identity mapping.
-         */
-        val Identity2 = object : OffsetMapping {
-            override fun originalToTransformed(offset: Int): Int = offset
-            override fun transformedToOriginal(offset: Int): Int = offset+1
+class DecimalVisualTransformation : VisualTransformation {
+    private val df = DecimalFormat("###,###,###,###,###,###,###,###,###,###")
+    override fun filter(text: AnnotatedString): TransformedText {
+        return try {
+            val numberValue = text.text.toLong()
+            val formattedText = df.format(numberValue)
+            TransformedText(text = AnnotatedString(formattedText), calcOffsetMapping(formattedText))
+        } catch (error: Throwable) {
+            TransformedText(text, OffsetMapping.Identity)
         }
     }
-    override fun filter(text: AnnotatedString): TransformedText {
-        val d = TransformedText(
-            text,
-            Identity2
-        )
-        Log.d("RRR", "filter: ${d.offsetMapping.originalToTransformed(text.length)} 2-> ${d.offsetMapping.transformedToOriginal(text.length)}  text = ${d.text}")
-        return d
+
+    private fun calcOffsetMapping(formattedText: String): OffsetMapping {
+        return object : OffsetMapping {
+            private val fromOriginal = mutableMapOf<Int, Int>()
+            private val toOriginal = mutableMapOf<Int, Int>()
+
+            init {
+                var diff = 0
+                formattedText.forEachIndexed { idx, ch ->
+                    val pos = idx + 1
+                    if (!ch.isDigit())
+                        diff++
+                    fromOriginal[pos] = pos + diff
+                    toOriginal[pos + diff] = pos
+                }
+            }
+
+            override fun originalToTransformed(offset: Int): Int = fromOriginal[offset] ?: 0
+
+            override fun transformedToOriginal(offset: Int): Int = toOriginal[offset] ?: 0
+        }
     }
 }

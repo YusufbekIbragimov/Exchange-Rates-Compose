@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.Calculate
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,8 +35,13 @@ import me.bytebeats.views.charts.line.render.line.SolidLineDrawer
 import me.bytebeats.views.charts.line.render.point.FilledCircularPointDrawer
 import me.bytebeats.views.charts.line.render.yaxis.SimpleYAxisDrawer
 import uz.yusufbekibragimov.valyutauz.R
+import uz.yusufbekibragimov.valyutauz.data.model.ExchangeDates
+import uz.yusufbekibragimov.valyutauz.data.model.ExchangeUiData
 import uz.yusufbekibragimov.valyutauz.data.model.RateItemData
+import uz.yusufbekibragimov.valyutauz.screens.home_screen.HomeViewModel
 import uz.yusufbekibragimov.valyutauz.ui.theme.*
+import java.text.SimpleDateFormat
+import java.util.*
 import kotlin.random.Random
 
 /**
@@ -50,10 +56,12 @@ fun ItemExchange(
     name: RateItemData,
     navController: NavHostController,
     openSheet: ModalBottomSheetState,
-    rateItemCurrent: MutableState<RateItemData>
+    rateItemCurrent: MutableState<RateItemData>,
+    viewModel: HomeViewModel
 ) {
     Card(
         backgroundColor = Color.Transparent,
+        elevation = 0.dp,
         modifier = Modifier
             .padding(vertical = 5.dp, horizontal = 8.dp)
             .clip(RoundedCornerShape(15.dp))
@@ -62,10 +70,9 @@ fun ItemExchange(
                     if (isSystemInDarkTheme()) listOf(color3, color5) else listOf(color03, color05),
                     center = Offset.VisibilityThreshold
                 )
-            ),
-        elevation = 0.dp
+            )
     ) {
-        FirstView(name, navController, openSheet,rateItemCurrent)
+        FirstView(name, navController, openSheet, rateItemCurrent, viewModel)
     }
 }
 
@@ -75,23 +82,32 @@ fun FirstView(
     n: RateItemData,
     navController: NavHostController,
     openSheet: ModalBottomSheetState,
-    rateItemCurrent: MutableState<RateItemData>
+    rateItemCurrent: MutableState<RateItemData>,
+    viewModel: HomeViewModel
 ) {
     var expanded by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
 
-    val extraPadding by animateDpAsState(
-        targetValue = if (expanded) 64.dp else 0.dp,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessLow
-        )
-    )
+    val nItem = n
 
     Row(
         modifier = Modifier
             .clickable {
                 expanded = !expanded
+                var today = Calendar.getInstance().timeInMillis
+                val data = SimpleDateFormat("yyyy-MM-dd")
+                val r = data.format(Date(today))
+
+                today = (today - (86400 * 7000))
+                val data2 = SimpleDateFormat("yyyy-MM-dd")
+                val r2 = data.format(Date(today))
+
+                n.ccy?.let {
+                    n.id?.let { it1 ->
+                        nItem.id = it1
+                        viewModel.getGraphList(r2, r, it, it1)
+                    }
+                }
             }
             .padding(12.dp)
             .animateContentSize(
@@ -130,7 +146,24 @@ fun FirstView(
                     )
                 }
 
-                IconButton(onClick = { expanded = !expanded }) {
+                IconButton(onClick = {
+                    expanded = !expanded
+                    var today = Calendar.getInstance().timeInMillis
+                    val data = SimpleDateFormat("yyyy-MM-dd")
+                    val r = data.format(Date(today))
+
+                    today = (today - (86400 * 7000))
+                    val data2 = SimpleDateFormat("yyyy-MM-dd")
+                    val r2 = data.format(Date(today))
+
+                    n.ccy?.let {
+                        n.id?.let { it1 ->
+                            nItem.id = it1
+                            viewModel.getGraphList(r2, r, it, it1)
+                        }
+                    }
+
+                }) {
                     Icon(
                         imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
                         tint = White100,
@@ -144,7 +177,8 @@ fun FirstView(
             }
             if (expanded) {
                 Column(horizontalAlignment = Alignment.End) {
-                    ChartMy()
+
+                    ChartMy(n, viewModel, nItem)
                     androidx.compose.material3.Button(
                         modifier = Modifier
                             .padding(top = 16.dp),
@@ -179,34 +213,71 @@ fun randomYValue(): Float {
 }
 
 @Composable
-fun ChartMy() {
-    LineChart(
-        lineChartData = LineChartData(
-            points = listOf(
-                LineChartData.Point(randomYValue(), "Mon"),
-                LineChartData.Point(randomYValue(), "Thu"),
-                LineChartData.Point(randomYValue(), "Wen"),
-                LineChartData.Point(randomYValue(), "Tho"),
-                LineChartData.Point(randomYValue(), "Fri"),
-                LineChartData.Point(randomYValue(), "Sat"),
-                LineChartData.Point(randomYValue(), "Sun")
-            )
-        ),
-        // Optional properties.
-        modifier = Modifier
-            .wrapContentWidth()
-            .height(125.dp)
-            .padding(top = 24.dp, start = 8.dp, end = 8.dp),
-        animation = simpleChartAnimation2(),
-        pointDrawer = FilledCircularPointDrawer(color = White100),
-        lineDrawer = SolidLineDrawer(color = Color.Green),
-        xAxisDrawer = me.bytebeats.views.charts.line.render.xaxis.SimpleXAxisDrawer(
-            labelTextColor = White100,
-            axisLineColor = White100
-        ),
-        yAxisDrawer = SimpleYAxisDrawer(labelTextColor = White100, axisLineColor = White100),
-        horizontalOffset = 5f
-    )
+fun ChartMy(
+    n: RateItemData,
+    viewModel: HomeViewModel,
+    nItem: RateItemData
+) {
+    var dataState = remember { ExchangeUiData(ExchangeDates(), -1) }
+    val loginState by viewModel.graphListLiveData.observeAsState()
+    if (nItem.id == loginState?.codeUnique) {
+        if (loginState != null) {
+            dataState = loginState as ExchangeUiData
+        }
+    }
+
+    val data = dataState.exchangeDates
+
+    if (loginState != null) {
+        LineChart(
+            lineChartData = LineChartData(
+                points = listOf(
+                    LineChartData.Point(
+                        data.data?.get(0)?.currencies?.uZS?.value?.toFloat()!!,
+                        data.data[0].datetime.substring(8, 10)
+                    ),
+                    LineChartData.Point(
+                        data.data[1].currencies.uZS.value.toFloat(),
+                        data.data[1].datetime.substring(8, 10)
+                    ),
+                    LineChartData.Point(
+                        data.data[2].currencies.uZS.value.toFloat(),
+                        data.data[2].datetime.substring(8, 10)
+                    ),
+                    LineChartData.Point(
+                        data.data[3].currencies.uZS.value.toFloat(),
+                        data.data[3].datetime.substring(8, 10)
+                    ),
+                    LineChartData.Point(
+                        data.data[4].currencies.uZS.value.toFloat(),
+                        data.data[4].datetime.substring(8, 10)
+                    ),
+                    LineChartData.Point(
+                        data.data[5].currencies.uZS.value.toFloat(),
+                        data.data[5].datetime.substring(8, 10)
+                    ),
+                    LineChartData.Point(
+                        data.data[6].currencies.uZS.value.toFloat(),
+                        data.data[6].datetime.substring(8, 10)
+                    ),
+                )
+            ),
+            modifier = Modifier
+                .wrapContentWidth()
+                .height(125.dp)
+                .padding(top = 24.dp, start = 8.dp, end = 8.dp),
+            animation = simpleChartAnimation2(),
+            pointDrawer = FilledCircularPointDrawer(color = White100),
+            lineDrawer = SolidLineDrawer(color = Color.Green),
+            xAxisDrawer = me.bytebeats.views.charts.line.render.xaxis.SimpleXAxisDrawer(
+                labelTextColor = White100,
+                axisLineColor = White100
+            ),
+            yAxisDrawer = SimpleYAxisDrawer(labelTextColor = White100, axisLineColor = White100),
+            horizontalOffset = 5f
+        )
+    }
+
 }
 
 fun simpleChartAnimation2(): AnimationSpec<Float> =

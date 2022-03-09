@@ -7,6 +7,7 @@ import androidx.core.content.ContextCompat.getSystemService
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import uz.yusufbekibragimov.valyutauz.data.cache.abstraction.UserPreferenceManager
+import uz.yusufbekibragimov.valyutauz.data.model.ExchangeDates
 import uz.yusufbekibragimov.valyutauz.data.model.RateItemData
 import uz.yusufbekibragimov.valyutauz.data.remote.NetworkService
 import uz.yusufbekibragimov.valyutauz.data.repository.abstraction.Repository
@@ -25,6 +26,17 @@ class RepositoryImpl @Inject constructor(
 
         val data = networkService.getListRate()
         Log.d("TTT", "getList: $data")
+        if (data != null) {
+            emit(data)
+        }
+    }
+
+    override fun getGraphList(
+        startHistoryData: String,
+        endHistoryData: String,
+        currency:String
+    ): Flow<ExchangeDates> = flow {
+        val data = networkService.getGraphList("https://api.currencyapi.com/v3/range?apikey=Nccr5y4w4ASy3ccL8sfAbURivFkqq2rtptGcWvuG&datetime_start=${startHistoryData}&datetime_end=${endHistoryData}&base_currency=${currency}&currencies=UZS")
         if (data != null) {
             emit(data)
         }

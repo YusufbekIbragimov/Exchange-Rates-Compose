@@ -97,4 +97,8 @@ dependencies {
     implementation('io.github.bytebeats:compose-charts:0.1.0')
     // Animations
     implementation "com.google.accompanist:accompanist-navigation-animation:0.16.1"
+
+    implementation 'com.appodeal.ads:sdk:2.11.0.+'
+
+    implementation 'com.google.android.gms:play-services-ads:20.6.0'
 }

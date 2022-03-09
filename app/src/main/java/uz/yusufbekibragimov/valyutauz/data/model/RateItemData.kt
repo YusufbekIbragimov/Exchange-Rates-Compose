@@ -22,7 +22,7 @@ data class RateItemData(
     @Json(name = "Diff")
     val diff: String?=null,
     @Json(name = "id")
-    val id: Int?=null,
+    var id: Int?=null,
     @Json(name = "Nominal")
     val nominal: String?=null,
     @Json(name = "Rate")
