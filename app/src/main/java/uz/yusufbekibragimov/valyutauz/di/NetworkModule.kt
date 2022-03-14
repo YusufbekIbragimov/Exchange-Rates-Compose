@@ -67,7 +67,6 @@ object NetworkModule {
             .build()
     }
 
-
     @Provides
     fun provideBeetoInterceptor(userPreferenceManager: UserPreferenceManager): Interceptor {
         return Interceptor {

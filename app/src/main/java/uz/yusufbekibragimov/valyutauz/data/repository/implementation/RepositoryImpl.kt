@@ -1,9 +1,6 @@
 package uz.yusufbekibragimov.valyutauz.data.repository.implementation
 
-import android.content.Context
-import android.net.ConnectivityManager
 import android.util.Log
-import androidx.core.content.ContextCompat.getSystemService
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import uz.yusufbekibragimov.valyutauz.data.cache.abstraction.UserPreferenceManager
@@ -22,21 +19,18 @@ class RepositoryImpl @Inject constructor(
     private val prefs: UserPreferenceManager,
 ) : Repository {
 
-    override fun getList(): Flow<List<RateItemData>> = flow {
-
-        val data = networkService.getListRate()
-        Log.d("TTT", "getList: $data")
-        if (data != null) {
-            emit(data)
-        }
+    override fun getList(date: String): Flow<List<RateItemData>> = flow {
+        val data = networkService.getListRate(date)
+        emit(data)
     }
 
     override fun getGraphList(
         startHistoryData: String,
         endHistoryData: String,
-        currency:String
+        currency: String
     ): Flow<ExchangeDates> = flow {
-        val data = networkService.getGraphList("https://api.currencyapi.com/v3/range?apikey=Nccr5y4w4ASy3ccL8sfAbURivFkqq2rtptGcWvuG&datetime_start=${startHistoryData}&datetime_end=${endHistoryData}&base_currency=${currency}&currencies=UZS")
+        val data =
+            networkService.getGraphList("https://api.currencyapi.com/v3/range?apikey=Nccr5y4w4ASy3ccL8sfAbURivFkqq2rtptGcWvuG&datetime_start=${startHistoryData}&datetime_end=${endHistoryData}&base_currency=${currency}&currencies=UZS")
         if (data != null) {
             emit(data)
         }

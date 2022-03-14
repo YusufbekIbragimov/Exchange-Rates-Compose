@@ -30,6 +30,7 @@ fun NavGraphBuilder.homeNavGraph(
             val model = hiltViewModel<HomeViewModel>()
             EnterAnimation {
                 HomeScreen(navController = navController, viewModel = model)
+                model.getList("")
             }
         }
         composable(route = Screen.DETAIL.route) {

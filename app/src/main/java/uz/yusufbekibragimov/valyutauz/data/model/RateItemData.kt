@@ -27,4 +27,6 @@ data class RateItemData(
     val nominal: String?=null,
     @Json(name = "Rate")
     val rate: String?=null
-)
+){
+    var exchangeDates:ExchangeDates?=null
+}

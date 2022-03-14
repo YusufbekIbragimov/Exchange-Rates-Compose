@@ -13,7 +13,7 @@ import java.util.*
 interface Repository {
 
     //Register and login pages
-    fun getList(): Flow<List<RateItemData>>
+    fun getList(date:String): Flow<List<RateItemData>>
     fun getGraphList(
         startHistoryData: String,
         endHistoryData: String,
