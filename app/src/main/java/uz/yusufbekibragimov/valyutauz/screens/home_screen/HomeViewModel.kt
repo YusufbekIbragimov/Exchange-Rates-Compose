@@ -88,20 +88,20 @@ class HomeViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             repository.getGraphList(startHistoryData, endHistoryData, currency)
-                .catch {
-
-                }
+                .catch {}
                 .collect { it_Exchange ->
-                    val rateItem = current
-                    rateItem.exchangeDates = it_Exchange
-                    _graphListLiveData.postValue(rateItem)
-//                    listData.forEach { itemRate ->
-//                        if (itemRate.id == rateItem.id) {
-//                            itemRate.exchangeDates = it_Exchange
-//                        }
-//                    }
+                    current.exchangeDates = it_Exchange
+                    _graphListLiveData.postValue(current)
                 }
         }
+    }
+
+
+    private val _theme = MutableLiveData<Boolean>()
+    val theme: LiveData<Boolean> = _theme
+
+    fun onThemeChanged(newTheme: Boolean) {
+        _theme.postValue(newTheme)
     }
 
 }

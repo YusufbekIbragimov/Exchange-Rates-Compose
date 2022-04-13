@@ -1,12 +1,11 @@
 <resources>
-    <string name="app_name">ValyutaUz</string>
+    <string name="app_name">Valyuta Uz</string>
     <string name="share">Share</string>
     <string name="out_pragram">Dasturdan chiqmoqchimisz</string>
     <string name="dialog">Dialog</string>
-    <string name="ok">Ok</string>
+    <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="calendar">Calendar</string>
-    <string name="share">Share</string>
     <string name="close">Close</string>
     <string name="search">Search</string>
 </resources>

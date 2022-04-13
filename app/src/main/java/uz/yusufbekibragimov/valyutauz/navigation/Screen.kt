@@ -15,6 +15,7 @@ sealed class Screen(var route: String) {
 
     object HOME : Screen("home_screen")
     object DETAIL : Screen("detail_screen")
+    object ANALYSIS : Screen("analysis_screen")
     object SPLASH : Screen("splash_screen")
     object SIGNUP : Screen("signup_screen")
 

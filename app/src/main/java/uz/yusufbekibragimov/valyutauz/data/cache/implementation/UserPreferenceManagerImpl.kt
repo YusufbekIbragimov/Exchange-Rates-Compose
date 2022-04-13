@@ -37,4 +37,14 @@ class UserPreferenceManagerImpl @Inject constructor(
             }
         }
 
+    override var darkMode: Boolean?
+        get() {
+            return preference.getBoolean(UserPreferenceManager.darkMode, false)
+        }
+        set(value) {
+            preference.edit {
+                putString(UserPreferenceManager.darkMode, "")
+            }
+        }
+
 }

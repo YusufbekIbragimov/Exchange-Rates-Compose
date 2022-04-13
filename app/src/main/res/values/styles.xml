@@ -2,7 +2,7 @@
 <resources>
 
     <style name="DatePickerMy" parent="Theme.AppCompat.Light.Dialog">
-        <item name="colorAccent">@color/purple_500</item>
+        <item name="colorAccent">#2D3D50</item>
     </style>
 
 </resources>

@@ -11,6 +11,7 @@ import uz.yusufbekibragimov.valyutauz.navigation.HOME_ROUTE
 import uz.yusufbekibragimov.valyutauz.navigation.Screen
 import uz.yusufbekibragimov.valyutauz.screens.DetailScreen
 import uz.yusufbekibragimov.valyutauz.screens.HomeScreen
+import uz.yusufbekibragimov.valyutauz.screens.analysis_Screen.AnalysisScreen
 import uz.yusufbekibragimov.valyutauz.screens.home_screen.HomeViewModel
 
 /**
@@ -20,22 +21,27 @@ import uz.yusufbekibragimov.valyutauz.screens.home_screen.HomeViewModel
  **/
 
 fun NavGraphBuilder.homeNavGraph(
-    navController: NavHostController
+    navController: NavHostController,
+    viewModel: HomeViewModel
 ) {
     navigation(
         startDestination = Screen.HOME.route,
         route = HOME_ROUTE
     ){
         composable(route = Screen.HOME.route) {
-            val model = hiltViewModel<HomeViewModel>()
             EnterAnimation {
-                HomeScreen(navController = navController, viewModel = model)
-                model.getList("")
+                HomeScreen(navController = navController, viewModel = viewModel)
+                viewModel.getList("")
             }
         }
         composable(route = Screen.DETAIL.route) {
             EnterAnimation {
                 DetailScreen(navController = navController)
+            }
+        }
+        composable(route = Screen.ANALYSIS.route) {
+            EnterAnimation {
+                AnalysisScreen(navController = navController)
             }
         }
     }

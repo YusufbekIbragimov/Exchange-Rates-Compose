@@ -7,6 +7,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -27,10 +28,13 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -41,6 +45,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.launch
+import uz.yusufbekibragimov.valyutauz.MainActivity
 import uz.yusufbekibragimov.valyutauz.R
 import uz.yusufbekibragimov.valyutauz.data.model.RateItemData
 import uz.yusufbekibragimov.valyutauz.screens.components.SheetContent
@@ -54,7 +59,11 @@ import java.util.*
  * Project: ComposeNavigation
  **/
 
-@OptIn(ExperimentalAnimationApi::class, ExperimentalMaterialApi::class, ExperimentalComposeUiApi::class)
+@OptIn(
+    ExperimentalAnimationApi::class,
+    ExperimentalMaterialApi::class,
+    ExperimentalComposeUiApi::class
+)
 @Composable
 fun HomeScreen(
     navController: NavHostController,
@@ -70,11 +79,11 @@ fun HomeScreen(
     val c = Calendar.getInstance()
     val mYear = c.get(Calendar.YEAR)
     val mMonth = c.get(Calendar.MONTH) + 1
-    val mDay = c.get(Calendar.DAY_OF_MONTH)
+    val mDay = c.get( Calendar.DAY_OF_MONTH )
 
     datePickerDialog = DatePickerDialog(context, R.style.DatePickerMy, { _, p1, p2, p3 ->
         val date = "$p1-$p2-$p3"
-        viewModel.getList(date)
+        viewModel.getList( date )
         progressShow.value = true
     }, mYear, mMonth - 1, mDay)
     datePickerDialog.datePicker.maxDate = System.currentTimeMillis()
@@ -112,7 +121,7 @@ fun HomeScreen(
         sheetBackgroundColor = Color.Transparent,
         sheetContent = {
             val keyboardController = LocalSoftwareKeyboardController.current
-            when(openSheet.currentValue) {
+            when (openSheet.currentValue) {
                 ModalBottomSheetValue.HalfExpanded -> {
                     keyboardController?.hide()
                 }
@@ -126,7 +135,7 @@ fun HomeScreen(
         sheetElevation = 0.dp,
     ) {
         Scaffold(
-            backgroundColor = if (isSystemInDarkTheme()) Black80 else White80,
+            backgroundColor = MaterialTheme.colors.onSecondary,
             drawerElevation = 0.dp,
             modifier = Modifier.fillMaxSize()
         ) {
@@ -146,7 +155,9 @@ fun HomeScreen(
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalAnimationApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalAnimationApi::class,
+    androidx.compose.foundation.ExperimentalFoundationApi::class
+)
 @Composable
 fun ListScreen(
     navController: NavHostController,
@@ -157,50 +168,66 @@ fun ListScreen(
     datePickerDialog: DatePickerDialog,
 ) {
 
-    val dName = remember { mutableStateOf(TextFieldValue("")) }
+    var dName by remember { mutableStateOf(TextFieldValue("")) }
     val openSearch = remember { mutableStateOf(false) }
+    val darkMode = remember { mutableStateOf(false) }
     val loginState by viewModel.listDataLiveData.observeAsState(emptyList())
+
     if (loginState.isNotEmpty()) {
         progressShow.value = false
     }
 
+    if (darkMode.value) {
+        viewModel.onThemeChanged(true)
+    } else {
+        viewModel.onThemeChanged(false)
+    }
+
     LazyColumn(modifier = Modifier.padding()) {
         item {
-            AnimatedContent(targetState = true) {
-                TopAppBar(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(70.dp)
-                        .clip(RoundedCornerShape(bottomEnd = 15.dp, bottomStart = 15.dp))
-                        .background(
-                            color = if (isSystemInDarkTheme()) Black80 else BackToolLight
-                        )
-                        .blur(radius = 16.dp),
-                    title = {
-                        AnimatedContent(
-                            targetState = openSearch.value
-                        ) {
-                            if (it) {
-                                MaterialTheme(
-                                    colors = lightColors(
-                                        primary = Color.White
-                                    )
-                                ) {
+            Column {
+
+                AnimatedContent(targetState = true) {
+                    var enabled by remember { mutableStateOf(false) }
+                    val focusRequester = remember { FocusRequester() }
+
+                    DisposableEffect(enabled) {
+                        if (enabled) {
+                            focusRequester.requestFocus()
+                        }
+                        onDispose {}
+                    }
+
+                    TopAppBar(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(70.dp)
+                            .clip(RoundedCornerShape(bottomEnd = 15.dp, bottomStart = 15.dp))
+                            .background(
+                                color = MaterialTheme.colors.secondaryVariant
+                            )
+                            .blur(radius = 16.dp),
+                        title = {
+                            AnimatedContent(
+                                targetState = openSearch.value
+                            ) {
+                                if (it) {
                                     Box(
                                         modifier = Modifier.fillMaxWidth(),
                                         contentAlignment = Alignment.CenterStart
                                     ) {
                                         OutlinedTextField(
-                                            value = dName.value,
+                                            value = dName,
                                             modifier = Modifier
                                                 .fillMaxWidth()
                                                 .padding(end = 12.dp)
                                                 .clip(RoundedCornerShape(30.dp))
-                                                .background(if (isSystemInDarkTheme()) BackSearchNight else BackSearch)
-                                                .padding(start = 8.dp),
+                                                .background(color = MaterialTheme.colors.primary)
+                                                .padding(start = 8.dp)
+                                                .focusRequester(focusRequester),
                                             onValueChange = { newText ->
-                                                dName.value = newText
-                                                viewModel.getListSearch(dName.value.text)
+                                                dName = newText
+                                                viewModel.getListSearch(dName.text)
                                             },
                                             singleLine = false,
                                             colors = TextFieldDefaults.textFieldColors(
@@ -222,75 +249,112 @@ fun ListScreen(
                                             },
                                             textStyle = TextStyle(fontSize = 14.sp),
                                             trailingIcon = {
-                                                if (dName.value.text != "") {
+                                                if (dName.text != "") {
                                                     Image(
                                                         imageVector = Icons.Default.Close,
                                                         contentDescription = "close search",
                                                         colorFilter = ColorFilter.tint(White100),
                                                         modifier = Modifier.clickable {
-                                                            dName.value = TextFieldValue("")
-                                                            viewModel.getListSearch(dName.value.text)
+                                                            dName = TextFieldValue("")
+                                                            viewModel.getListSearch(dName.text)
                                                         }
                                                     )
                                                 }
                                             }
                                         )
                                     }
-                                }
-                            } else {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.Center
-                                ) {
-                                    Text(
-                                        stringResource(id = R.string.app_name),
-                                        fontFamily = FontFamily(Font(R.font.my_bold)),
-                                        modifier = Modifier.padding(bottom = 4.dp, start = 8.dp),
-                                        color = Color.White
-                                    )
-                                }
-                            }
-                        }
-                    },
-                    actions = {
-                        IconButton(onClick = {
-                            openSearch.value = !openSearch.value
-                            dName.value = TextFieldValue("")
-                            viewModel.getListSearch("")
-                        }) {
-                            AnimatedContent(targetState = openSearch.value) { isOpen ->
-                                if (isOpen) {
-                                    Icon(
-                                        imageVector = Icons.Default.Close,
-                                        contentDescription = stringResource(R.string.close),
-                                        tint = Color.White
-                                    )
                                 } else {
-                                    Icon(
-                                        imageVector = Icons.Default.Search,
-                                        contentDescription = stringResource(R.string.share),
-                                        tint = Color.White
-                                    )
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.Center
+                                    ) {
+                                        IconButton(onClick = {
+                                            openSearch.value = !openSearch.value
+                                            enabled = openSearch.value
+                                            dName = TextFieldValue("")
+                                            viewModel.getListSearch("")
+                                        }) {
+                                            AnimatedContent(targetState = openSearch.value) { isOpen ->
+                                                if (isOpen) {
+                                                    Icon(
+                                                        imageVector = Icons.Default.Close,
+                                                        contentDescription = stringResource(R.string.close),
+                                                        tint = Color.White
+                                                    )
+                                                } else {
+                                                    Icon(
+                                                        imageVector = Icons.Default.Search,
+                                                        contentDescription = stringResource(R.string.share),
+                                                        tint = Color.White
+                                                    )
+                                                }
+                                            }
+                                        }
+                                        Text(
+                                            stringResource(id = R.string.app_name),
+                                            fontFamily = FontFamily(Font(R.font.my_bold)),
+                                            modifier = Modifier.padding(bottom = 4.dp, start = 8.dp),
+                                            color = Color.White
+                                        )
+                                    }
                                 }
                             }
-                        }
-                        IconButton(onClick = {
-                            datePickerDialog.show()
-                        }) {
-                            Icon(
-                                imageVector = Icons.Default.EditCalendar,
-                                contentDescription = stringResource(R.string.calendar),
-                                tint = Color.White
-                            )
-                        }
-                    },
-                    backgroundColor = Color.Transparent,
-                    elevation = 0.dp
-                )
+                        },
+                        actions = {
+                            IconButton(onClick = {
+                                if (openSearch.value) {
+                                    openSearch.value = !openSearch.value
+                                } else {
+                                    darkMode.value = !darkMode.value
+                                }
+                            }) {
+                                AnimatedContent(targetState = darkMode.value) { isMode ->
+                                    if (openSearch.value) {
+                                        Icon(
+                                            imageVector = Icons.Default.Close,
+                                            contentDescription = stringResource(R.string.close),
+                                            tint = Color.White
+                                        )
+                                    } else {
+                                        if (isMode) {
+                                            Icon(
+                                                painter = painterResource(id = R.drawable.ic_moon),
+                                                contentDescription = stringResource(R.string.close),
+                                                tint = Color.White
+                                            )
+                                        } else {
+                                            Icon(
+                                                painter = painterResource(id = R.drawable.ic_sun),
+                                                contentDescription = stringResource(R.string.share),
+                                                tint = Color.White
+                                            )
+                                        }
+                                    }
+
+                                }
+                            }
+                            IconButton(onClick = {
+                                datePickerDialog.show()
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Default.EditCalendar,
+                                    contentDescription = stringResource(R.string.calendar),
+                                    tint = Color.White
+                                )
+                            }
+                        },
+                        backgroundColor = Color.Transparent,
+                        elevation = 0.dp
+                    )
+                }
+                Spacer(modifier = Modifier.height(5.dp))
             }
         }
         items(loginState) { names ->
             ItemExchange(
+                modifier = Modifier.animateItemPlacement(
+                    tween(600)
+                ),
                 name = names,
                 navController,
                 openSheet,

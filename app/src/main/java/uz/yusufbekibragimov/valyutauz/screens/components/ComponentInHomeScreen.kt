@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
+import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PriceChange
 import androidx.compose.material3.Text
@@ -14,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Green
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -26,6 +28,8 @@ import uz.yusufbekibragimov.valyutauz.R
 import uz.yusufbekibragimov.valyutauz.data.model.RateItemData
 import uz.yusufbekibragimov.valyutauz.ui.theme.BackSheet
 import uz.yusufbekibragimov.valyutauz.ui.theme.Black50
+import uz.yusufbekibragimov.valyutauz.ui.theme.Black80
+import uz.yusufbekibragimov.valyutauz.ui.theme.White80
 import java.text.DecimalFormat
 
 /**
@@ -50,7 +54,7 @@ fun SheetContent(item: RateItemData, openSheet: ModalBottomSheetState) {
             .fillMaxSize()
             .padding(top = 100.dp)
             .clip(RoundedCornerShape(topEnd = 30.dp, topStart = 30.dp))
-            .background(color = if (isSystemInDarkTheme()) BackSheet else Color.White)
+            .background(color = colors.onBackground)
     ) {
         Text(
             text = item.ccyNmUZ ?: "",
@@ -60,7 +64,7 @@ fun SheetContent(item: RateItemData, openSheet: ModalBottomSheetState) {
             fontFamily = FontFamily(Font(R.font.my_bold)),
             fontSize = 24.sp,
             textAlign = TextAlign.Center,
-            color = if (isSystemInDarkTheme()) Color.White else Color.Black
+            color = colors.onSurface
         )
 
         Text(
@@ -71,34 +75,33 @@ fun SheetContent(item: RateItemData, openSheet: ModalBottomSheetState) {
             fontFamily = FontFamily(Font(R.font.my_regular)),
             fontSize = 18.sp,
             textAlign = TextAlign.Start,
-            color = if (isSystemInDarkTheme()) Color.White else Color.Black
+            color = colors.onSurface
         )
-        MaterialTheme(
-            colors = if (isSystemInDarkTheme()) darkColors(primary = Color.White) else lightColors(
-                primary = Color.Black
+
+        OutlinedTextField(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .padding(vertical = 8.dp, horizontal = 16.dp),
+            value = inputValueState,
+            label = {
+                Text(
+                    text = "Input amount",
+                    color = colors.background,
+                    fontSize = 16.sp,
+                    fontFamily = FontFamily(Font(R.font.my_regular))
+                )
+            },
+            onValueChange = { newtext ->
+                inputValueState = newtext
+            },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            visualTransformation = DecimalVisualTransformation(),
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                textColor = colors.onSurface,
+                focusedBorderColor = colors.onSurface
             )
-        ) {
-            OutlinedTextField(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-                    .padding(vertical = 8.dp, horizontal = 16.dp),
-                value = inputValueState,
-                label = {
-                    Text(
-                        text = "Input amount",
-                        color = Black50,
-                        fontSize = 16.sp,
-                        fontFamily = FontFamily(Font(R.font.my_regular))
-                    )
-                },
-                onValueChange = { newtext ->
-                    inputValueState = newtext
-                },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                visualTransformation = DecimalVisualTransformation()
-            )
-        }
+        )
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -113,7 +116,7 @@ fun SheetContent(item: RateItemData, openSheet: ModalBottomSheetState) {
                 fontFamily = FontFamily(Font(R.font.my_regular)),
                 fontSize = 18.sp,
                 textAlign = TextAlign.Start,
-                color = if (isSystemInDarkTheme()) Color.White else Color.Black,
+                color = colors.onSurface,
             )
 
             IconButton(
@@ -129,66 +132,53 @@ fun SheetContent(item: RateItemData, openSheet: ModalBottomSheetState) {
                 Icon(
                     imageVector = Icons.Default.PriceChange,
                     contentDescription = "Price changer icon",
-                    tint = Color.Black,
+                    tint = colors.onSurface,
                     modifier = Modifier
                         .align(Alignment.CenterVertically)
                 )
             }
         }
-
-        MaterialTheme(
-            colors = if (isSystemInDarkTheme()) darkColors(primary = Color.White) else lightColors(
-                primary = Color.Black
-            )
-        ) {
-            OutlinedTextField(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-                    .padding(vertical = 8.dp, horizontal = 16.dp),
-                value = TextFieldValue(
-                    "${
-                        decimalFormat.format(
-                            if (inputValueState.text == "" || inputValueState == null) {
-                                "0".toDouble()
+        OutlinedTextField(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .padding(vertical = 8.dp, horizontal = 16.dp),
+            value = TextFieldValue(
+                "${
+                    decimalFormat.format(
+                        if (inputValueState.text == "" || inputValueState == null) {
+                            "0".toDouble()
+                        } else {
+                            if (isChange.value) {
+                                inputValueState.text.replace(("[^\\d.]").toRegex(), "")
+                                    .toDouble() / (item.rate?.toDouble()!!)
                             } else {
-                                if (isChange.value) {
+                                if (item.rate != null) {
                                     inputValueState.text.replace(("[^\\d.]").toRegex(), "")
-                                        .toDouble() / (item.rate?.toDouble()!!)
+                                        .toDouble() * (item.rate.toDouble())
                                 } else {
-                                    if (item.rate != null) {
-                                        inputValueState.text.replace(("[^\\d.]").toRegex(), "")
-                                            .toDouble() * (item.rate.toDouble())
-                                    } else {
-                                        0.0
-                                    }
+                                    0.0
                                 }
                             }
-                        )
-                    } ${if (isChange.value) item.ccy else "UZS"}"
-                ),
-                label = {
-                    Text(
-                        text = "Output amount",
-                        color = Black50,
-                        fontSize = 16.sp,
-                        fontFamily = FontFamily(Font(R.font.my_regular))
-                    )
-                },
-                onValueChange = { newtext ->
-                    /*if (newtext.text.isEmpty()) {
-                        outputValue.value = newtext
-                    } else {
-                        outputValue.value = when (newtext.text.toDoubleOrNull()) {
-                            null -> outputValue.value //old value
-                            else -> newtext //new value
                         }
-                    }*/
-                },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                    )
+                } ${if (isChange.value) item.ccy else "UZS"}"
+            ),
+            label = {
+                Text(
+                    text = "Output amount",
+                    color = colors.background,
+                    fontSize = 16.sp,
+                    fontFamily = FontFamily(Font(R.font.my_regular))
+                )
+            },
+            onValueChange = {},
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                textColor = colors.onSurface,
+                focusedBorderColor = colors.onSurface
             )
-        }
-
+        )
     }
 
     if (!openSheet.isVisible) {

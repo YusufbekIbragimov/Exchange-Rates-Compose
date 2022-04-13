@@ -63,7 +63,7 @@ object NetworkModule {
     ): OkHttpClient {
         return OkHttpClient.Builder()
             .addInterceptor(beetoInterceptor)
-            .addInterceptor(chuckerInterceptor)
+//            .addInterceptor(chuckerInterceptor)
             .build()
     }
 
