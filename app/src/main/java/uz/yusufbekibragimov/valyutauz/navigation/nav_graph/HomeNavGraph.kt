@@ -2,7 +2,6 @@ package uz.yusufbekibragimov.valyutauz.navigation.nav_graph
 
 import androidx.compose.animation.*
 import androidx.compose.runtime.Composable
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
@@ -13,6 +12,7 @@ import uz.yusufbekibragimov.valyutauz.screens.DetailScreen
 import uz.yusufbekibragimov.valyutauz.screens.HomeScreen
 import uz.yusufbekibragimov.valyutauz.screens.analysis_Screen.AnalysisScreen
 import uz.yusufbekibragimov.valyutauz.screens.home_screen.HomeViewModel
+import uz.yusufbekibragimov.valyutauz.screens.news_Screen.NewsScreen
 
 /**
  * Created by Ibragimov Yusufbek
@@ -42,6 +42,11 @@ fun NavGraphBuilder.homeNavGraph(
         composable(route = Screen.ANALYSIS.route) {
             EnterAnimation {
                 AnalysisScreen(navController = navController)
+            }
+        }
+        composable(route = Screen.NEWS.route) {
+            EnterAnimation {
+                NewsScreen(navController = navController)
             }
         }
     }

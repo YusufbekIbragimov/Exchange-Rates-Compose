@@ -8,7 +8,7 @@ import androidx.lifecycle.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import uz.yusufbekibragimov.valyutauz.data.model.RateItemData
+import uz.yusufbekibragimov.valyutauz.data.model.*
 import uz.yusufbekibragimov.valyutauz.data.repository.abstraction.Repository
 import javax.inject.Inject
 
@@ -87,12 +87,24 @@ class HomeViewModel @Inject constructor(
         current: RateItemData
     ) {
         viewModelScope.launch {
-            repository.getGraphList(startHistoryData, endHistoryData, currency)
+            current.exchangeDates = ExchangeDates(listOf(
+                Data(Currencies(UZS("uzs",Math.random()%1500000)),"0000000012.03"),
+                Data(Currencies(UZS("uzs",Math.random()%1500000)),"0000000012.03"),
+                Data(Currencies(UZS("uzs",Math.random()%1500000)),"0000000012.03"),
+                Data(Currencies(UZS("uzs",Math.random()%1500000)),"0000000012.03"),
+                Data(Currencies(UZS("uzs",Math.random()%1500000)),"0000000012.03"),
+                Data(Currencies(UZS("uzs",Math.random()%1500000)),"0000000012.03"),
+                Data(Currencies(UZS("uzs",Math.random()%1500000)),"0000000012.03"),
+                Data(Currencies(UZS("uzs",Math.random()%1500000)),"0000000012.03"),
+                Data(Currencies(UZS("uzs",Math.random()%1500000)),"0000000012.03"),
+            ))
+            _graphListLiveData.postValue(current)
+            /*repository.getGraphList(startHistoryData, endHistoryData, currency)
                 .catch {}
                 .collect { it_Exchange ->
                     current.exchangeDates = it_Exchange
                     _graphListLiveData.postValue(current)
-                }
+                }*/
         }
     }
 

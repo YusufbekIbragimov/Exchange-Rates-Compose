@@ -2,6 +2,7 @@
 
 package uz.yusufbekibragimov.valyutauz.screens
 
+import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
@@ -59,6 +60,7 @@ import java.util.*
  * Project: ComposeNavigation
  **/
 
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @OptIn(
     ExperimentalAnimationApi::class,
     ExperimentalMaterialApi::class,
@@ -114,6 +116,8 @@ fun HomeScreen(
 
     PresentDialog(viewModel, openSheet)
 
+    Scaffold {
+    }
     ModalBottomSheetLayout(
         modifier = Modifier.fillMaxSize(),
         sheetState = openSheet,
@@ -206,7 +210,7 @@ fun ListScreen(
                             .background(
                                 color = MaterialTheme.colors.secondaryVariant
                             )
-                            .blur(radius = 16.dp),
+                            .blur(radius = 0.dp),
                         title = {
                             AnimatedContent(
                                 targetState = openSearch.value

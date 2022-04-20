@@ -96,9 +96,9 @@ fun ItemExchange(
         backgroundColor = MaterialTheme.colors.onBackground,
         modifier = modifier
             .graphicsLayer(scaleX = scale, scaleY = scale)
-            .padding(vertical = 4.5.dp, horizontal = 16.dp)
+            .padding(vertical = 5.dp, horizontal = 16.dp)
             .background(Color.Transparent),
-        elevation = 6.dp,
+        elevation = 4.dp,
         shape = RoundedCornerShape(15.dp)
     ) {
         FirstView(
@@ -312,7 +312,7 @@ fun FirstView(
                     Row {
 
                         Button(
-                            onClick = { navController.navigate(Screen.ANALYSIS.route) },
+                            onClick = { navController.navigate(Screen.NEWS.route) },
                             modifier = Modifier.padding(16.dp)
                         ) {
                             Image(painter = painterResource(id = R.drawable.ic_analysis), contentDescription = "Analysis image button")
