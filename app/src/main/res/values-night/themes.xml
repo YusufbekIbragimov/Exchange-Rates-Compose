@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <style name="Theme.ValyutaUz" parent="android:Theme.Material.NoActionBar">
+    <style name="Theme.ExchangeRate" parent="android:Theme.Material.NoActionBar">
         <item name="android:statusBarColor">#212D3B</item>
     </style>
 </resources>

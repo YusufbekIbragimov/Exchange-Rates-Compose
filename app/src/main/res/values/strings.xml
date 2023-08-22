@@ -1,7 +1,7 @@
 <resources>
-    <string name="app_name">Valyuta Uz</string>
+    <string name="app_name">Exchange Rates</string>
     <string name="share">Share</string>
-    <string name="out_pragram">Dasturdan chiqmoqchimisz</string>
+    <string name="out_pragram">Do you want to exit</string>
     <string name="dialog">Dialog</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
