@@ -2,6 +2,7 @@
 
 package com.exchangerates.best.screens
 
+import android.util.Log
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateContentSize
@@ -9,6 +10,7 @@ import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -23,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.Font
@@ -42,6 +45,7 @@ import me.bytebeats.views.charts.line.render.point.FilledCircularPointDrawer
 import me.bytebeats.views.charts.line.render.yaxis.SimpleYAxisDrawer
 import com.exchangerates.best.R
 import com.exchangerates.best.data.model.RateItemData
+import com.exchangerates.best.navigation.Screen
 import com.exchangerates.best.screens.home_screen.HomeViewModel
 import com.exchangerates.best.ui.theme.*
 import java.text.SimpleDateFormat
@@ -57,7 +61,7 @@ enum class BounceState { Pressed, Released }
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun ItemOfExchange(
+fun ItemExchange(
     modifier: Modifier,
     name: RateItemData,
     navController: NavHostController,
@@ -95,7 +99,7 @@ fun ItemOfExchange(
         elevation = 4.dp,
         shape = RoundedCornerShape(15.dp)
     ) {
-        FirstComponentView(
+        FirstView(
             name,
             navController,
             openSheet,
@@ -110,7 +114,7 @@ fun ItemOfExchange(
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun FirstComponentView(
+fun FirstView(
     n: RateItemData,
     navController: NavHostController,
     openSheet: ModalBottomSheetState,

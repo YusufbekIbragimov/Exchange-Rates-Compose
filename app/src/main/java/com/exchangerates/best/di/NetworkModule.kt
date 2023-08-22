@@ -2,6 +2,7 @@ package com.exchangerates.best.di
 
 import android.content.Context
 import android.util.Log
+import com.chuckerteam.chucker.api.ChuckerInterceptor
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
@@ -55,7 +56,6 @@ object NetworkModule {
     ): OkHttpClient {
         return OkHttpClient.Builder()
             .addInterceptor(beetoInterceptor)
-           // .addInterceptor(chuckerInterceptor)
             .build()
     }
 
@@ -72,7 +72,6 @@ object NetworkModule {
             response
         }
     }
-
 
     @[Provides Singleton]
     fun provideNetworkService(retrofit: Retrofit): NetworkService {

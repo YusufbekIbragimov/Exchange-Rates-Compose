@@ -6,14 +6,15 @@ plugins {
 }
 
 android {
-    compileSdk 31
+
 
     defaultConfig {
         applicationId "com.exchangesrates.best"
         minSdk 21
-        targetSdk 31
-        versionCode 2
-        versionName "2.0"
+        compileSdk 32
+        targetSdk 32
+        versionCode 1
+        versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

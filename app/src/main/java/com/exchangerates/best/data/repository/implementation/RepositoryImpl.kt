@@ -25,7 +25,9 @@ class RepositoryImpl @Inject constructor(
         currency: String
     ): Flow<ExchangeDates> = flow {
         val data = networkService.getGraphList("https://api.currencyapi.com/v3/range?apikey=Nccr5y4w4ASy3ccL8sfAbURivFkqq2rtptGcWvuG&datetime_start=${startHistoryData}&datetime_end=${endHistoryData}&base_currency=${currency}&currencies=UZS")
-        emit(data)
+        if (data != null) {
+            emit(data)
+        }
     }
 
 }

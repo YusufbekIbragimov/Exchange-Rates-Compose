@@ -53,6 +53,12 @@ import com.exchangerates.best.screens.home_screen.HomeViewModel
 import com.exchangerates.best.ui.theme.*
 import java.util.*
 
+/**
+ * Created by Ibragimov Yusufbek
+ * Date: 16.02.2022
+ * Project: ComposeNavigation
+ **/
+
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @OptIn(
     ExperimentalAnimationApi::class,
@@ -109,6 +115,8 @@ fun HomeScreen(
 
     PresentDialog(viewModel, openSheet)
 
+    Scaffold {
+    }
     ModalBottomSheetLayout(
         modifier = Modifier.fillMaxSize(),
         sheetState = openSheet,
@@ -346,7 +354,7 @@ fun ListScreen(
             }
         }
         items(loginState) { names ->
-            ItemOfExchange(
+            ItemExchange(
                 modifier = Modifier.animateItemPlacement(
                     tween(600)
                 ),
