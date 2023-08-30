@@ -45,8 +45,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import kotlinx.coroutines.launch
 import com.exchangerates.best.R
+import kotlinx.coroutines.launch
 import com.exchangerates.best.data.model.RateItemData
 import com.exchangerates.best.screens.components.SheetContent
 import com.exchangerates.best.screens.home_screen.HomeViewModel

@@ -53,9 +53,11 @@ object NetworkModule {
     @Provides
     fun provideOkHttpClient(
         beetoInterceptor: Interceptor,
+        chuckerInterceptor: ChuckerInterceptor,
     ): OkHttpClient {
         return OkHttpClient.Builder()
             .addInterceptor(beetoInterceptor)
+            .addInterceptor(chuckerInterceptor)
             .build()
     }
 
@@ -68,10 +70,17 @@ object NetworkModule {
 //                .addHeader(HttpHeaders.ACCEPT_LANGUAGE, "uz")
 
             val response = it.proceed(request.build())
-            Log.d("TTT", "provideBeetoInterceptor: ${response.code}")
+            Log.d("TAGTAG", "provideBeetoInterceptor: ${response.code}")
             response
         }
     }
+
+    @Provides
+    fun provideChuckerInterceptor(@ApplicationContext context: Context): ChuckerInterceptor {
+        return ChuckerInterceptor.Builder(context).maxContentLength(250_000L)
+            .alwaysReadResponseBody(true).build()
+    }
+
 
     @[Provides Singleton]
     fun provideNetworkService(retrofit: Retrofit): NetworkService {

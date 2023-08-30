@@ -27,7 +27,7 @@ fun NavGraphBuilder.homeNavGraph(
         composable(route = Screen.HOME.route) {
             EnterAnimation {
                 HomeScreen(navController = navController, viewModel = viewModel)
-                viewModel.getList("")
+                viewModel.getList("2023-04-01")
             }
         }
     }

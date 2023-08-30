@@ -1,5 +1,6 @@
 package com.exchangerates.best.screens.home_screen
 
+import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -7,15 +8,15 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.launch
 import com.exchangerates.best.data.model.Currencies
 import com.exchangerates.best.data.model.Data
 import com.exchangerates.best.data.model.ExchangeDates
 import com.exchangerates.best.data.model.RateItemData
 import com.exchangerates.best.data.model.UZS
 import com.exchangerates.best.data.repository.abstraction.Repository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -34,9 +35,12 @@ class HomeViewModel @Inject constructor(
     fun getList(date: String) {
         viewModelScope.launch {
             repository.getList(date)
-                .catch {}
+                .catch {
+                    Log.d("TAGTAG", "getList: $it")
+                }
                 .collect {
                     _listDataLiveData.postValue(it)
+                    Log.d("TAGTAG", "getList: $it")
                     listData = it
                 }
         }

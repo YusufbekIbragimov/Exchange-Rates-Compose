@@ -8,7 +8,7 @@ import com.exchangerates.best.data.model.RateItemData
 
 interface NetworkService {
 
-    @GET("com/arkhiv-kursov-valyut/json/all/{date}/")
+    @GET("uz/arkhiv-kursov-valyut/json/all/{date}/")
     suspend fun getListRate(@Path("date") date:String): List<RateItemData>
 
     @GET
